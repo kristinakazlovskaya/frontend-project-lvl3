@@ -2,7 +2,7 @@ install:
 	npm ci
 
 lint:
-	npx eslit .
+	npx eslint .
 
 test:
 	npm test

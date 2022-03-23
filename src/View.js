@@ -10,12 +10,10 @@ const watch = (state, form) => onChange(state, (path, value) => {
   const feedback = document.createElement('p');
   feedback.classList.add('feedback', 'm-0', 'position-absolute', 'small');
 
-  if (value.length === 0) {
+  if (state.form.state === 'valid') {
     urlInput.classList.remove('is-invalid');
 
     feedback.classList.add('text-success');
-    feedback.textContent = 'RSS успешно загружен';
-    form.after(feedback);
 
     form.reset();
     urlInput.focus();
@@ -23,9 +21,10 @@ const watch = (state, form) => onChange(state, (path, value) => {
     urlInput.classList.add('is-invalid');
 
     feedback.classList.add('text-danger');
-    [feedback.textContent] = state.form.errors;
-    form.after(feedback);
   }
+
+  [feedback.textContent] = value;
+  form.after(feedback);
 });
 
 export default watch;

@@ -2,6 +2,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './style.css';
 
 import * as yup from 'yup';
+import i18next from 'i18next';
 import watch from './View';
 
 const schema = yup.string().url();
@@ -9,38 +10,59 @@ const schema = yup.string().url();
 const app = () => {
   const state = {
     form: {
-      feeds: [],
-      errors: [],
+      feedback: [],
       state: '',
     },
+    feeds: [],
   };
 
-  const form = document.querySelector('form');
+  const i18nInstance = i18next.createInstance();
 
-  const watchedState = watch(state, form);
+  i18nInstance.init({
+    lng: 'ru',
+    debug: true,
+    resources: {
+      ru: {
+        translation: {
+          form: {
+            feedback: {
+              validUrl: 'RSS успешно загружен',
+              unvalidUrl: 'Ссылка должна быть валидным URL',
+              existingFeed: 'RSS уже существует',
+            },
+          },
+        },
+      },
+    },
+  })
+    .then(() => {
+      const form = document.querySelector('form');
 
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
+      const watchedState = watch(state, form);
 
-    const formData = new FormData(form);
-    const urlInputValue = formData.get('url');
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
 
-    schema.validate(urlInputValue)
-      .then(() => {
-        if (state.form.feeds.includes(urlInputValue)) {
-          state.form.state = 'invalid';
-          watchedState.form.errors = ['RSS уже существует'];
-        } else {
-          state.form.state = 'valid';
-          state.form.feeds.push(urlInputValue);
-          watchedState.form.errors = [];
-        }
-      })
-      .catch(() => {
-        state.form.state = 'invalid';
-        watchedState.form.errors = ['Ссылка должна быть валидным URL'];
+        const formData = new FormData(form);
+        const urlInputValue = formData.get('url');
+
+        schema.validate(urlInputValue)
+          .then(() => {
+            if (state.feeds.includes(urlInputValue)) {
+              state.form.state = 'invalid';
+              watchedState.form.feedback = [i18nInstance.t('form.feedback.existingFeed')];
+            } else {
+              state.form.state = 'valid';
+              state.feeds.push(urlInputValue);
+              watchedState.form.feedback = [i18nInstance.t('form.feedback.validUrl')];
+            }
+          })
+          .catch(() => {
+            state.form.state = 'invalid';
+            watchedState.form.feedback = [i18nInstance.t('form.feedback.unvalidUrl')];
+          });
       });
-  });
+    });
 };
 
 app();

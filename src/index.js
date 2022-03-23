@@ -10,8 +10,8 @@ const app = () => {
   const state = {
     form: {
       feeds: [],
+      errors: [],
       state: '',
-      error: '',
     },
   };
 
@@ -28,16 +28,17 @@ const app = () => {
     schema.validate(urlInputValue)
       .then(() => {
         if (state.form.feeds.includes(urlInputValue)) {
-          state.form.error = 'RSS уже существует';
-          watchedState.form.state = 'invalid';
+          state.form.state = 'invalid';
+          watchedState.form.errors = ['RSS уже существует'];
         } else {
+          state.form.state = 'valid';
           state.form.feeds.push(urlInputValue);
-          watchedState.form.state = 'valid';
+          watchedState.form.errors = [];
         }
       })
       .catch(() => {
-        state.form.error = 'Ссылка должна быть валидным URL';
-        watchedState.form.state = 'invalid';
+        state.form.state = 'invalid';
+        watchedState.form.errors = ['Ссылка должна быть валидным URL'];
       });
   });
 };

@@ -7,19 +7,24 @@ const watch = (state, form) => onChange(state, (path, value) => {
     form.nextElementSibling.remove();
   }
 
-  if (value === 'invalid') {
-    urlInput.classList.add('is-invalid');
+  const feedback = document.createElement('p');
+  feedback.classList.add('feedback', 'm-0', 'position-absolute', 'small');
 
-    const p = document.createElement('p');
-    p.classList.add('feedback', 'm-0', 'position-absolute', 'small', 'text-danger');
-    p.textContent = state.form.error;
-    form.after(p);
-  }
-
-  if (value === 'valid') {
+  if (value.length === 0) {
     urlInput.classList.remove('is-invalid');
+
+    feedback.classList.add('text-success');
+    feedback.textContent = 'RSS успешно загружен';
+    form.after(feedback);
+
     form.reset();
     urlInput.focus();
+  } else {
+    urlInput.classList.add('is-invalid');
+
+    feedback.classList.add('text-danger');
+    [feedback.textContent] = state.form.errors;
+    form.after(feedback);
   }
 });
 

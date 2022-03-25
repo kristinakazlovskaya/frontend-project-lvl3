@@ -6,20 +6,44 @@
     <title>RSS агрегатор</title>
 </head>
 
-<body>
-    <main class="container">
-        <form action="">
+<body class="d-flex flex-column min-vh-100">
+    <main class="flex-grow-1">
+        <section class="container-fluid p-5 bg-dark">
             <div class="row">
-                <div class="col">
-                    <input type="text" autofocus required aria-label="url" placeholder="Ссылка RSS" autocomplete="off" name="url" id="url-input" class="form-control w-100">
-                    <!-- <label for="url-input">Ссылка RSS</label> -->
-                </div>
-                <div class="col-auto">
-                    <button type="submit" class="btn btn-primary btn-lg h-100 px-sm-5">Добавить</button>
+                <div class="col-md-10 col-lg-8 mx-auto text-white">
+                    <h1 class="mb-0 display-3">RSS агрегатор</h1>
+                    <p class="lead">Начните читать RSS сегодня! Это легко, это красиво.</p>
+                    <form action="">
+                        <div class="row">
+                            <div class="col">
+                                <input type="text" autofocus required aria-label="url" placeholder="Ссылка RSS"
+                                    autocomplete="off" name="url" id="url-input" class="form-control w-100">
+                                <!-- <label for="url-input">Ссылка RSS</label> -->
+                            </div>
+                            <div class="col-auto">
+                                <button type="submit" aria-label="add"
+                                    class="btn btn-primary btn-lg h-100 px-sm-5">Добавить</button>
+                            </div>
+                        </div>
+                    </form>
+                    <p class="mt-2 mb-0 text-muted">Пример: https://ru.hexlet.io/lessons.rss</p>
                 </div>
             </div>
-        </form>
+        </section>
+        <section class="container-fluid container-xxl p-5">
+            <div class="row">
+                <div class="col-md-10 col-lg-8 order-1 mx-auto posts"></div>
+                <div class="col-md-10 col-lg-4 order-0 mx-auto order-lg-1 feeds"></div>
+            </div>
+        </section>
     </main>
+    <footer class="footer border-top py-3 mt-5 bg-light">
+        <div class="container-xl">
+            <div class="text-center">
+                created by <a href="https://ru.hexlet.io/programs/frontend/projects/11" target="_blank">Hexlet</a>
+            </div>
+        </div>
+    </footer>
 </body>
 
 </html>

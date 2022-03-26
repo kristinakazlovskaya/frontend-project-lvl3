@@ -18,10 +18,10 @@ i18next.init({
         form: {
           feedback: {
             validRss: 'RSS успешно загружен',
-            unvalidUrl: 'Ссылка должна быть валидным URL',
+            invalidUrl: 'Ссылка должна быть валидным URL',
             existingRss: 'RSS уже существует',
             networkError: 'Ошибка сети',
-            unvalidRss: 'Ресурс не содержит валидный RSS',
+            invalidRss: 'Ресурс не содержит валидный RSS',
           },
         },
         posts: {
@@ -48,17 +48,19 @@ const isUniqueFeed = (title, desc) => {
   return !existingFeed;
 };
 
+const isRss = (dom) => {
+  const rssEl = dom.querySelector('rss');
+
+  if (rssEl === null) {
+    throw new Error('Invalid RSS');
+  }
+};
+
 const parseRss = (str) => new window.DOMParser().parseFromString(str, 'text/xml');
 
 const processParsedRss = (rss) => {
   const feedTitleEl = rss.querySelector('title');
-
-  if (!feedTitleEl) {
-    throw new Error('Unvalid RSS');
-  }
-
   const feedDescEl = rss.querySelector('description');
-
   const feedId = uniqueId();
 
   if (isUniqueFeed(feedTitleEl.innerHTML, feedDescEl.innerHTML)) {
@@ -87,46 +89,50 @@ const processParsedRss = (rss) => {
   });
 };
 
-const getRssFeed = (url) => {
-  axios.get(`https://allorigins.hexlet.app/raw?disableCache=true&url=${url}`)
-    .then((response) => response.data)
-    .then((data) => parseRss(data))
-    .catch(() => {
-      state.form.state = 'unvalid';
-      watchedState.form.feedback = [i18next.t('form.feedback.networkError')];
-    })
-    .then((parsedRss) => processParsedRss(parsedRss))
-    .then(() => {
-      state.form.state = 'valid';
-      watchedState.form.feedback = [i18next.t('form.feedback.validRss')];
-    })
-    .catch((e) => {
-      if (e.message === 'Existing RSS') {
-        state.form.state = 'invalid';
-        watchedState.form.feedback = [i18next.t('form.feedback.existingRss')];
-      }
-
-      if (e.message === 'Unvalid RSS') {
-        state.form.state = 'unvalid';
-        watchedState.form.feedback = [i18next.t('form.feedback.unvalidRss')];
-      }
-    });
-};
-
 const app = () => {
   const form = document.querySelector('form');
 
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
 
     const formData = new FormData(form);
     const urlInputValue = formData.get('url');
 
     schema.validate(urlInputValue)
-      .then(() => getRssFeed(urlInputValue))
+      .then(() => {
+        axios.get(`https://allorigins.hexlet.app/raw?disableCache=true&url=${urlInputValue}`)
+          .then((response) => {
+            if (response.status === 200) {
+              return response.data;
+            }
+
+            throw new Error('Network Error');
+          })
+          .then((data) => parseRss(data))
+          .then((parsedRss) => {
+            isRss(parsedRss);
+            return parsedRss;
+          })
+          .then((parsedRss) => processParsedRss(parsedRss))
+          .then(() => {
+            state.form.state = 'valid';
+            watchedState.form.feedback = [i18next.t('form.feedback.validRss')];
+          })
+          .catch((e) => {
+            state.form.state = 'invalid';
+
+            if (e.message === 'Network Error') {
+              watchedState.form.feedback = [i18next.t('form.feedback.networkError')];
+            } else if (e.message === 'Invalid RSS') {
+              watchedState.form.feedback = [i18next.t('form.feedback.invalidRss')];
+            } else if (e.message === 'Existing RSS') {
+              watchedState.form.feedback = [i18next.t('form.feedback.existingRss')];
+            }
+          });
+      })
       .catch(() => {
         state.form.state = 'invalid';
-        watchedState.form.feedback = [i18next.t('form.feedback.unvalidUrl')];
+        watchedState.form.feedback = [i18next.t('form.feedback.invalidUrl')];
       });
   });
 };

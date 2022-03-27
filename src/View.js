@@ -74,36 +74,43 @@ const renderFeeds = (state) => {
 
 const watch = (state) => onChange(state, (path, value) => {
   const form = document.querySelector('form');
-
   const urlInput = form.querySelector('#url-input');
-
   const existingFeedback = document.querySelector('.feedback');
-
-  if (existingFeedback) {
-    existingFeedback.remove();
-  }
 
   const feedback = document.createElement('p');
   feedback.classList.add('feedback', 'm-0', 'position-absolute', 'small');
 
-  if (state.form.state === 'valid') {
-    urlInput.classList.remove('is-invalid');
+  if (path === 'form.feedback') {
+    if (existingFeedback) {
+      existingFeedback.remove();
+    }
 
-    feedback.classList.add('text-success');
+    if (state.form.state === 'valid') {
+      urlInput.classList.remove('is-invalid');
 
-    form.reset();
-    urlInput.focus();
-  } else {
-    urlInput.classList.add('is-invalid');
+      feedback.classList.add('text-success');
 
-    feedback.classList.add('text-danger');
+      form.reset();
+      urlInput.focus();
+    } else {
+      urlInput.classList.add('is-invalid');
+
+      feedback.classList.add('text-danger');
+    }
+
+    [feedback.textContent] = value;
+    form.parentElement.append(feedback);
+
+    renderFeeds(state);
+    renderPosts(state);
   }
 
-  [feedback.textContent] = value;
-  form.parentElement.append(feedback);
+  if (path === 'posts') {
+    [feedback.textContent] = state.form.feedback;
 
-  renderFeeds(state);
-  renderPosts(state);
+    renderFeeds(state);
+    renderPosts(state);
+  }
 });
 
 export default watch;

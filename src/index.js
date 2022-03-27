@@ -3,9 +3,11 @@ import './style.css';
 
 import * as yup from 'yup';
 import i18next from 'i18next';
-import uniqueId from 'lodash/uniqueId.js';
+import _ from 'lodash';
 import axios from 'axios';
 import watch from './View';
+
+let timer;
 
 const schema = yup.string().url();
 
@@ -58,16 +60,50 @@ const isRss = (dom) => {
 
 const parseRss = (str) => new window.DOMParser().parseFromString(str, 'text/xml');
 
-const processParsedRss = (rss) => {
+const updateFeed = () => {
+  state.feeds.forEach((feed) => {
+    axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(feed.url)}`)
+      .then((response) => {
+        const parsedRss = parseRss(response.data.contents);
+
+        const items = parsedRss.querySelectorAll('item');
+        const posts = [];
+
+        items.forEach((item) => {
+          const postTitleEl = item.querySelector('title');
+          const postDescEl = item.querySelector('description');
+          const postLinkEl = item.querySelector('link');
+
+          posts.push({
+            title: postTitleEl.innerHTML,
+            description: postDescEl.innerHTML,
+            link: postLinkEl.innerHTML,
+            feedId: feed.id,
+          });
+        });
+
+        const newPosts = _.differenceBy(posts, state.posts, 'title', 'description');
+        if (newPosts.length > 0) {
+          watchedState.posts = [...state.posts, ...newPosts];
+        }
+      })
+      .catch(() => console.log('error'));
+  });
+
+  timer = setTimeout(updateFeed, 5000);
+};
+
+const processParsedRss = (rss, url) => {
   const feedTitleEl = rss.querySelector('title');
   const feedDescEl = rss.querySelector('description');
-  const feedId = uniqueId();
+  const feedId = _.uniqueId();
 
   if (isUniqueFeed(feedTitleEl.innerHTML, feedDescEl.innerHTML)) {
     state.feeds.push({
       title: feedTitleEl.innerHTML,
       description: feedDescEl.innerHTML,
       id: feedId,
+      url,
     });
   } else {
     throw new Error('Existing RSS');
@@ -87,6 +123,8 @@ const processParsedRss = (rss) => {
       feedId,
     });
   });
+
+  updateFeed();
 };
 
 const app = () => {
@@ -100,7 +138,7 @@ const app = () => {
 
     schema.validate(urlInputValue)
       .then(() => {
-        axios.get(`https://allorigins.hexlet.app/raw?disableCache=true&url=${urlInputValue}`)
+        axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(urlInputValue)}`)
           .then((response) => {
             if (response.status === 200) {
               return response.data;
@@ -108,15 +146,19 @@ const app = () => {
 
             throw new Error('Network Error');
           })
-          .then((data) => parseRss(data))
+          .then((data) => parseRss(data.contents))
           .then((parsedRss) => {
             isRss(parsedRss);
             return parsedRss;
           })
-          .then((parsedRss) => processParsedRss(parsedRss))
+          .then((parsedRss) => processParsedRss(parsedRss, urlInputValue))
           .then(() => {
             state.form.state = 'valid';
             watchedState.form.feedback = [i18next.t('form.feedback.validRss')];
+          })
+          .then(() => {
+            clearTimeout(timer);
+            updateFeed();
           })
           .catch((e) => {
             state.form.state = 'invalid';

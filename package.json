@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "",
   "main": "src/index.js",
+  "type": "module",
   "scripts": {
     "test": "npx jest --bail",
     "build": "webpack --mode=production --node-env=production",
@@ -22,7 +23,6 @@
   },
   "homepage": "https://github.com/kristinakazlovskaya/frontend-project-lvl3#readme",
   "devDependencies": {
-    "@babel/plugin-transform-modules-commonjs": "^7.17.7",
     "@webpack-cli/generators": "^2.4.2",
     "css-loader": "^6.7.1",
     "eslint": "^8.11.0",

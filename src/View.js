@@ -30,12 +30,15 @@ const renderPosts = (state) => {
       liLink.href = post.link;
       liLink.target = '_blank';
       liLink.classList.add('fw-bold');
+      liLink.dataset.id = post.id;
       liLink.innerHTML = post.title;
 
       const liBtn = document.createElement('button');
       liBtn.type = 'button';
       liBtn.classList.add('btn', 'btn-outline-primary', 'btn-sm');
       liBtn.innerHTML = t('posts.postBtn');
+      liBtn.dataset.bsTarget = '#modal';
+      liBtn.dataset.bsToggle = 'modal';
 
       li.append(liLink, liBtn);
       postsUl.append(li);
@@ -110,6 +113,26 @@ const watch = (state) => onChange(state, (path, value) => {
 
     renderFeeds(state);
     renderPosts(state);
+  }
+
+  if (path === 'openedPosts') {
+    value.forEach((id) => {
+      const link = document.querySelector(`a[data-id="${id}"]`);
+      link.classList.remove('fw-bold');
+      link.classList.add('fw-normal', 'link-secondary');
+    });
+  }
+
+  if (path === 'currentPost') {
+    const id = value;
+    const currentPost = state.posts.find((post) => post.id === id);
+
+    const modalTitle = document.querySelector('.modal-title');
+    const modalBody = document.querySelector('.modal-body');
+    const modalLink = document.querySelector('.full-article');
+    modalTitle.textContent = currentPost.title;
+    modalBody.textContent = currentPost.description;
+    modalLink.href = currentPost.link;
   }
 });
 

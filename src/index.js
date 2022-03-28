@@ -1,5 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './style.css';
+import 'bootstrap/js/dist/modal';
 
 import * as yup from 'yup';
 import i18next from 'i18next';
@@ -41,6 +42,8 @@ const state = {
   },
   feeds: [],
   posts: [],
+  openedPosts: [],
+  currentPost: '',
 };
 
 const watchedState = watch(state);
@@ -79,6 +82,7 @@ const updateFeed = () => {
             description: postDescEl.innerHTML,
             link: postLinkEl.innerHTML,
             feedId: feed.id,
+            id: _.uniqueId(),
           });
         });
 
@@ -96,7 +100,7 @@ const updateFeed = () => {
 const processParsedRss = (rss, url) => {
   const feedTitleEl = rss.querySelector('title');
   const feedDescEl = rss.querySelector('description');
-  const feedId = _.uniqueId();
+  const feedId = _.uniqueId('feed_');
 
   if (isUniqueFeed(feedTitleEl.innerHTML, feedDescEl.innerHTML)) {
     state.feeds.push({
@@ -121,13 +125,26 @@ const processParsedRss = (rss, url) => {
       description: postDescEl.innerHTML,
       link: postLinkEl.innerHTML,
       feedId,
+      id: _.uniqueId(),
     });
   });
-
-  updateFeed();
 };
 
 const app = () => {
+  const posts = document.querySelector('.posts');
+
+  posts.addEventListener('click', (e) => {
+    if (e.target.tagName === 'BUTTON') {
+      const link = e.target.previousElementSibling;
+      const postId = link.dataset.id;
+
+      if (!state.openedPosts.includes(postId)) {
+        watchedState.openedPosts.push(postId);
+      }
+      watchedState.currentPost = postId;
+    }
+  });
+
   const form = document.querySelector('form');
 
   form.addEventListener('submit', (event) => {

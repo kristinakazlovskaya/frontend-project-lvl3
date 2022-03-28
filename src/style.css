@@ -1,3 +1,5 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
 .form-control {
   height: calc(3.5rem + 2px);
 }

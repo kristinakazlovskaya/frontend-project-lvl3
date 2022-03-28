@@ -1,6 +1,3 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './style.css';
-import 'bootstrap/js/dist/modal';
 import * as yup from 'yup';
 import i18next from 'i18next';
 import _ from 'lodash';

@@ -92,7 +92,7 @@ const watch = (state, i18nInstance) => onChange(state, (path, value) => {
 
       feedback.classList.add('text-success');
 
-      form.reset();
+      urlInput.value = '';
       urlInput.focus();
     } else {
       urlInput.classList.add('is-invalid');

@@ -8,43 +8,7 @@ let timer;
 
 const schema = yup.string().url();
 
-i18next.init({
-  lng: 'ru',
-  debug: true,
-  resources: {
-    ru: {
-      translation: {
-        form: {
-          feedback: {
-            validRss: 'RSS успешно загружен',
-            invalidUrl: 'Ссылка должна быть валидным URL',
-            existingRss: 'RSS уже существует',
-            networkError: 'Ошибка сети',
-            invalidRss: 'Ресурс не содержит валидный RSS',
-          },
-        },
-        posts: {
-          postBtn: 'Просмотр',
-        },
-      },
-    },
-  },
-});
-
-const state = {
-  form: {
-    feedback: [],
-    state: '',
-  },
-  feeds: [],
-  posts: [],
-  openedPosts: [],
-  currentPost: '',
-};
-
-const watchedState = watch(state);
-
-const isUniqueFeed = (title, desc) => {
+const isUniqueFeed = (state, title, desc) => {
   const existingFeed = state.feeds.find((f) => f.title === title && f.description === desc);
   return !existingFeed;
 };
@@ -59,7 +23,7 @@ const isRss = (dom) => {
 
 const parseRss = (str) => new window.DOMParser().parseFromString(str, 'text/xml');
 
-const updateFeed = () => {
+const updateFeed = (state, watchedState) => {
   state.feeds.forEach((feed) => {
     axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(feed.url)}`)
       .then((response) => {
@@ -84,22 +48,22 @@ const updateFeed = () => {
 
         const newPosts = _.differenceBy(posts, state.posts, 'title', 'description');
         if (newPosts.length > 0) {
-          watchedState.posts = [...state.posts, ...newPosts];
+          watchedState.posts.unshift(...newPosts);
         }
       })
-      .catch(() => console.log('error'));
+      .catch(() => console.log('Error'));
   });
 
-  timer = setTimeout(updateFeed, 5000);
+  timer = setTimeout(() => updateFeed(state, watchedState), 5000);
 };
 
-const processParsedRss = (rss, url) => {
+const processParsedRss = (state, rss, url) => {
   const feedTitleEl = rss.querySelector('title');
   const feedDescEl = rss.querySelector('description');
   const feedId = _.uniqueId('feed_');
 
-  if (isUniqueFeed(feedTitleEl.innerHTML, feedDescEl.innerHTML)) {
-    state.feeds.push({
+  if (isUniqueFeed(state, feedTitleEl.innerHTML, feedDescEl.innerHTML)) {
+    state.feeds.unshift({
       title: feedTitleEl.innerHTML,
       description: feedDescEl.innerHTML,
       id: feedId,
@@ -116,7 +80,7 @@ const processParsedRss = (rss, url) => {
     const postDescEl = item.querySelector('description');
     const postLinkEl = item.querySelector('link');
 
-    state.posts.push({
+    state.posts.unshift({
       title: postTitleEl.innerHTML,
       description: postDescEl.innerHTML,
       link: postLinkEl.innerHTML,
@@ -127,6 +91,44 @@ const processParsedRss = (rss, url) => {
 };
 
 const app = () => {
+  const state = {
+    form: {
+      feedback: [],
+      state: '',
+    },
+    feeds: [],
+    posts: [],
+    openedPosts: [],
+    currentPost: '',
+  };
+
+  const i18nInstance = i18next.createInstance();
+
+  i18nInstance.init({
+    lng: 'ru',
+    debug: true,
+    resources: {
+      ru: {
+        translation: {
+          form: {
+            feedback: {
+              validRss: 'RSS успешно загружен',
+              invalidUrl: 'Ссылка должна быть валидным URL',
+              existingRss: 'RSS уже существует',
+              networkError: 'Ошибка сети',
+              invalidRss: 'Ресурс не содержит валидный RSS',
+            },
+          },
+          posts: {
+            postBtn: 'Просмотр',
+          },
+        },
+      },
+    },
+  });
+
+  const watchedState = watch(state, i18nInstance);
+
   const posts = document.querySelector('.posts');
 
   posts.addEventListener('click', (e) => {
@@ -164,30 +166,30 @@ const app = () => {
             isRss(parsedRss);
             return parsedRss;
           })
-          .then((parsedRss) => processParsedRss(parsedRss, urlInputValue))
+          .then((parsedRss) => processParsedRss(state, parsedRss, urlInputValue))
           .then(() => {
             state.form.state = 'valid';
-            watchedState.form.feedback = [i18next.t('form.feedback.validRss')];
+            watchedState.form.feedback = [i18nInstance.t('form.feedback.validRss')];
           })
           .then(() => {
             clearTimeout(timer);
-            updateFeed();
+            updateFeed(state, watchedState);
           })
           .catch((e) => {
             state.form.state = 'invalid';
 
             if (e.message === 'Network Error') {
-              watchedState.form.feedback = [i18next.t('form.feedback.networkError')];
+              watchedState.form.feedback = [i18nInstance.t('form.feedback.networkError')];
             } else if (e.message === 'Invalid RSS') {
-              watchedState.form.feedback = [i18next.t('form.feedback.invalidRss')];
+              watchedState.form.feedback = [i18nInstance.t('form.feedback.invalidRss')];
             } else if (e.message === 'Existing RSS') {
-              watchedState.form.feedback = [i18next.t('form.feedback.existingRss')];
+              watchedState.form.feedback = [i18nInstance.t('form.feedback.existingRss')];
             }
           });
       })
       .catch(() => {
         state.form.state = 'invalid';
-        watchedState.form.feedback = [i18next.t('form.feedback.invalidUrl')];
+        watchedState.form.feedback = [i18nInstance.t('form.feedback.invalidUrl')];
       });
   });
 };

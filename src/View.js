@@ -1,5 +1,4 @@
 import onChange from 'on-change';
-import { t } from 'i18next';
 
 const renderSectionHtml = (heading) => {
   const sectionHtml = `<div class="card border-0">
@@ -11,7 +10,7 @@ const renderSectionHtml = (heading) => {
   return sectionHtml;
 };
 
-const renderPosts = (state) => {
+const renderPosts = (state, i18nInstance) => {
   const postsEl = document.querySelector('.posts');
   postsEl.innerHTML = '';
 
@@ -36,7 +35,7 @@ const renderPosts = (state) => {
       const liBtn = document.createElement('button');
       liBtn.type = 'button';
       liBtn.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-      liBtn.innerHTML = t('posts.postBtn');
+      liBtn.innerHTML = i18nInstance.t('posts.postBtn');
       liBtn.dataset.bsTarget = '#modal';
       liBtn.dataset.bsToggle = 'modal';
 
@@ -75,7 +74,7 @@ const renderFeeds = (state) => {
   }
 };
 
-const watch = (state) => onChange(state, (path, value) => {
+const watch = (state, i18nInstance) => onChange(state, (path, value) => {
   const form = document.querySelector('form');
   const urlInput = form.querySelector('#url-input');
   const existingFeedback = document.querySelector('.feedback');
@@ -105,14 +104,14 @@ const watch = (state) => onChange(state, (path, value) => {
     form.parentElement.append(feedback);
 
     renderFeeds(state);
-    renderPosts(state);
+    renderPosts(state, i18nInstance);
   }
 
   if (path === 'posts') {
     [feedback.textContent] = state.form.feedback;
 
     renderFeeds(state);
-    renderPosts(state);
+    renderPosts(state, i18nInstance);
   }
 
   if (path === 'openedPosts') {

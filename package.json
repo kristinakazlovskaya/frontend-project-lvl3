@@ -2,8 +2,8 @@
   "name": "@hexlet/code",
   "version": "0.1.0",
   "description": "",
-  "main": "src/init.js",
   "type": "module",
+  "main": "src/init.js",
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest --bail",
     "build": "webpack --mode=production --node-env=production",

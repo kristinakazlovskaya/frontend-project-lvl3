@@ -74,9 +74,37 @@ const renderFeeds = (state) => {
   }
 };
 
+const handleProcessState = (element, processState) => {
+  switch (processState) {
+    case 'sent':
+      element.removeAttribute('readOnly');
+      break;
+
+    case 'error':
+      element.removeAttribute('readOnly');
+      break;
+
+    case 'sending':
+      element.setAttribute('readOnly', null);
+      break;
+
+    case 'filling':
+      element.removeAttribute('readOnly');
+      break;
+
+    default:
+      throw new Error(`Unknown process state: ${processState}`);
+  }
+};
+
 const watch = (state, i18nInstance) => onChange(state, (path, value) => {
   const form = document.querySelector('form');
   const urlInput = form.querySelector('#url-input');
+
+  if (path === 'form.processState') {
+    handleProcessState(urlInput, value);
+  }
+
   const existingFeedback = document.querySelector('.feedback');
 
   const feedback = document.createElement('p');
@@ -87,7 +115,7 @@ const watch = (state, i18nInstance) => onChange(state, (path, value) => {
       existingFeedback.remove();
     }
 
-    if (state.form.state === 'valid') {
+    if (state.form.valid === true) {
       urlInput.classList.remove('is-invalid');
 
       feedback.classList.add('text-success');

@@ -94,7 +94,8 @@ const app = () => {
   const state = {
     form: {
       feedback: [],
-      state: '',
+      valid: true,
+      processState: 'filling',
     },
     feeds: [],
     posts: [],
@@ -148,6 +149,8 @@ const app = () => {
   form.addEventListener('submit', (event) => {
     event.preventDefault();
 
+    watchedState.form.processState = 'sending';
+
     const formData = new FormData(form);
     const urlInputValue = formData.get('url');
 
@@ -156,6 +159,7 @@ const app = () => {
         axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(urlInputValue)}`)
           .then((response) => {
             if (response.status === 200) {
+              watchedState.form.processState = 'sent';
               return response.data;
             }
 
@@ -168,7 +172,7 @@ const app = () => {
           })
           .then((parsedRss) => processParsedRss(state, parsedRss, urlInputValue))
           .then(() => {
-            state.form.state = 'valid';
+            state.form.valid = true;
             watchedState.form.feedback = [i18nInstance.t('form.feedback.validRss')];
           })
           .then(() => {
@@ -176,7 +180,8 @@ const app = () => {
             updateFeed(state, watchedState);
           })
           .catch((e) => {
-            state.form.state = 'invalid';
+            state.form.valid = false;
+            watchedState.form.processState = 'error';
 
             if (e.message === 'Network Error') {
               watchedState.form.feedback = [i18nInstance.t('form.feedback.networkError')];
@@ -188,7 +193,8 @@ const app = () => {
           });
       })
       .catch(() => {
-        state.form.state = 'invalid';
+        state.form.valid = false;
+        watchedState.form.processState = 'error';
         watchedState.form.feedback = [i18nInstance.t('form.feedback.invalidUrl')];
       });
   });

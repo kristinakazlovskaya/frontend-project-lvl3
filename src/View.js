@@ -79,22 +79,26 @@ const renderFeeds = (state) => {
   }
 };
 
-const handleProcessState = (element, processState) => {
+const handleProcessState = (input, btn, processState) => {
   switch (processState) {
     case 'sent':
-      element.removeAttribute('readOnly');
+      input.removeAttribute('readOnly');
+      btn.removeAttribute('disabled');
       break;
 
     case 'error':
-      element.removeAttribute('readOnly');
+      input.removeAttribute('readOnly');
+      btn.removeAttribute('disabled');
       break;
 
     case 'sending':
-      element.setAttribute('readOnly', null);
+      input.setAttribute('readOnly', null);
+      btn.setAttribute('disabled', null);
       break;
 
     case 'filling':
-      element.removeAttribute('readOnly');
+      input.removeAttribute('readOnly');
+      btn.removeAttribute('disabled');
       break;
 
     default:
@@ -105,7 +109,8 @@ const handleProcessState = (element, processState) => {
 const watch = (form, state, i18nInstance) => onChange(state, (path, value) => {
   if (path === 'form.processState') {
     const urlInput = form.elements.url;
-    handleProcessState(urlInput, value);
+    const btn = form.elements.submit;
+    handleProcessState(urlInput, btn, value);
   }
 
   if (path === 'form.feedback') {

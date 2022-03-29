@@ -28,9 +28,14 @@ const renderPosts = (state, i18nInstance) => {
       const liLink = document.createElement('a');
       liLink.href = post.link;
       liLink.target = '_blank';
-      liLink.classList.add('fw-bold');
       liLink.dataset.id = post.id;
       liLink.innerHTML = post.title;
+
+      if (state.openedPosts.includes(post.id)) {
+        liLink.classList.add('fw-normal', 'link-secondary');
+      } else {
+        liLink.classList.add('fw-bold');
+      }
 
       const liBtn = document.createElement('button');
       liBtn.type = 'button';
@@ -97,23 +102,22 @@ const handleProcessState = (element, processState) => {
   }
 };
 
-const watch = (state, i18nInstance) => onChange(state, (path, value) => {
-  const form = document.querySelector('form');
-  const urlInput = form.querySelector('#url-input');
-
+const watch = (form, state, i18nInstance) => onChange(state, (path, value) => {
   if (path === 'form.processState') {
+    const urlInput = form.elements.url;
     handleProcessState(urlInput, value);
   }
 
-  const existingFeedback = document.querySelector('.feedback');
-
-  const feedback = document.createElement('p');
-  feedback.classList.add('feedback', 'm-0', 'position-absolute', 'small');
-
   if (path === 'form.feedback') {
+    const urlInput = form.elements.url;
+    const existingFeedback = document.querySelector('.feedback');
+
     if (existingFeedback) {
       existingFeedback.remove();
     }
+
+    const feedback = document.createElement('p');
+    feedback.classList.add('feedback', 'm-0', 'position-absolute', 'small');
 
     if (state.form.valid === true) {
       urlInput.classList.remove('is-invalid');
@@ -136,6 +140,7 @@ const watch = (state, i18nInstance) => onChange(state, (path, value) => {
   }
 
   if (path === 'posts') {
+    const feedback = document.querySelector('.feedback');
     [feedback.textContent] = state.form.feedback;
 
     renderFeeds(state);

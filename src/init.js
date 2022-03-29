@@ -128,7 +128,9 @@ const app = () => {
     },
   });
 
-  const watchedState = watch(state, i18nInstance);
+  const form = document.querySelector('form');
+
+  const watchedState = watch(form, state, i18nInstance);
 
   const posts = document.querySelector('.posts');
 
@@ -143,8 +145,6 @@ const app = () => {
       watchedState.currentPost = postId;
     }
   });
-
-  const form = document.querySelector('form');
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();

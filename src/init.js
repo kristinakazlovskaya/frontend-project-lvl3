@@ -3,6 +3,7 @@ import i18next from 'i18next';
 import _ from 'lodash';
 import axios from 'axios';
 import watch from './view';
+import parseRss from './parser';
 
 let timer;
 
@@ -21,40 +22,44 @@ const isRss = (dom) => {
   }
 };
 
-const parseRss = (str) => new window.DOMParser().parseFromString(str, 'text/xml');
+const getRssLink = (url) => `https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`;
 
-const updateFeed = (state, watchedState) => {
+const addNewPosts = (rssString, feed, state, watchedState) => {
+  const parsedRss = parseRss(rssString);
+
+  const items = parsedRss.querySelectorAll('item');
+  const posts = [];
+
+  items.forEach((item) => {
+    const postTitleEl = item.querySelector('title');
+    const postDescEl = item.querySelector('description');
+    const postLinkEl = item.querySelector('link');
+
+    posts.push({
+      title: postTitleEl.innerHTML,
+      description: postDescEl.innerHTML,
+      link: postLinkEl.innerHTML,
+      feedId: feed.id,
+      id: _.uniqueId(),
+    });
+  });
+
+  const newPosts = _.differenceBy(posts, state.posts, 'title', 'description');
+  if (newPosts.length > 0) {
+    watchedState.posts.unshift(...newPosts);
+  }
+};
+
+const updateFeeds = (state, watchedState) => {
   state.feeds.forEach((feed) => {
-    axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(feed.url)}`)
+    axios.get(getRssLink(feed.url))
       .then((response) => {
-        const parsedRss = parseRss(response.data.contents);
-
-        const items = parsedRss.querySelectorAll('item');
-        const posts = [];
-
-        items.forEach((item) => {
-          const postTitleEl = item.querySelector('title');
-          const postDescEl = item.querySelector('description');
-          const postLinkEl = item.querySelector('link');
-
-          posts.push({
-            title: postTitleEl.innerHTML,
-            description: postDescEl.innerHTML,
-            link: postLinkEl.innerHTML,
-            feedId: feed.id,
-            id: _.uniqueId(),
-          });
-        });
-
-        const newPosts = _.differenceBy(posts, state.posts, 'title', 'description');
-        if (newPosts.length > 0) {
-          watchedState.posts.unshift(...newPosts);
-        }
+        addNewPosts(response.data.contents, feed, state, watchedState);
       })
       .catch(() => console.log('Error'));
   });
 
-  timer = setTimeout(() => updateFeed(state, watchedState), 5000);
+  timer = setTimeout(() => updateFeeds(state, watchedState), 5000);
 };
 
 const processParsedRss = (state, rss, url) => {
@@ -74,7 +79,6 @@ const processParsedRss = (state, rss, url) => {
   }
 
   const items = rss.querySelectorAll('item');
-
   items.forEach((item) => {
     const postTitleEl = item.querySelector('title');
     const postDescEl = item.querySelector('description');
@@ -123,6 +127,10 @@ const app = () => {
           },
           posts: {
             postBtn: 'Просмотр',
+            postsHeading: 'Посты',
+          },
+          feeds: {
+            feedsHeading: 'Фиды',
           },
         },
       },
@@ -134,7 +142,6 @@ const app = () => {
   const watchedState = watch(form, state, i18nInstance);
 
   const posts = document.querySelector('.posts');
-
   posts.addEventListener('click', (e) => {
     if (e.target.tagName === 'BUTTON') {
       const link = e.target.previousElementSibling;
@@ -166,7 +173,7 @@ const app = () => {
 
     schema.validate(urlInputValue)
       .then(() => {
-        axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(urlInputValue)}`)
+        axios.get(getRssLink(urlInputValue))
           .then((response) => {
             if (response.status === 200) {
               watchedState.form.processState = 'sent';
@@ -187,7 +194,7 @@ const app = () => {
           })
           .then(() => {
             clearTimeout(timer);
-            updateFeed(state, watchedState);
+            updateFeeds(state, watchedState);
           })
           .catch((e) => {
             state.form.valid = false;

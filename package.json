@@ -2,6 +2,7 @@
   "name": "@hexlet/code",
   "version": "0.1.0",
   "description": "",
+  "type": "module",
   "main": "src/init.js",
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest --bail",

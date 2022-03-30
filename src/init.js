@@ -101,6 +101,7 @@ const app = () => {
     posts: [],
     openedPosts: [],
     currentPost: '',
+    modalState: false,
   };
 
   const i18nInstance = i18next.createInstance();
@@ -142,7 +143,16 @@ const app = () => {
       if (!state.openedPosts.includes(postId)) {
         watchedState.openedPosts.push(postId);
       }
+
       watchedState.currentPost = postId;
+      watchedState.modalState = true;
+    }
+  });
+
+  const modal = document.querySelector('.modal');
+  modal.addEventListener('click', (e) => {
+    if (e.target.dataset.bsDismiss === 'modal') {
+      watchedState.modalState = false;
     }
   });
 

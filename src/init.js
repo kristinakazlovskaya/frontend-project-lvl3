@@ -101,7 +101,7 @@ const app = () => {
     posts: [],
     openedPosts: [],
     currentPost: '',
-    // modalState: false,
+    modalState: false,
   };
 
   const i18nInstance = i18next.createInstance();
@@ -144,17 +144,17 @@ const app = () => {
         watchedState.openedPosts.push(postId);
       }
 
-      // watchedState.modalState = true;
+      watchedState.modalState = true;
       watchedState.currentPost = postId;
     }
   });
 
-  // const modal = document.querySelector('.modal');
-  // modal.addEventListener('click', (e) => {
-  //   if (e.target.dataset.bsDismiss === 'modal') {
-  //     watchedState.modalState = false;
-  //   }
-  // });
+  const modal = document.querySelector('.modal');
+  modal.addEventListener('click', (e) => {
+    if (e.target.dataset.bsDismiss === 'modal') {
+      watchedState.modalState = false;
+    }
+  });
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();

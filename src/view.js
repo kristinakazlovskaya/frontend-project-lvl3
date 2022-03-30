@@ -15,9 +15,7 @@ const renderPosts = (state, i18nInstance) => {
   postsEl.innerHTML = '';
 
   if (state.posts.length !== 0) {
-    const postsContainer = renderContainer('Посты');
-
-    postsEl.innerHTML = postsContainer;
+    postsEl.innerHTML = renderContainer('Посты');
 
     const postsUl = postsEl.querySelector('ul');
 
@@ -55,9 +53,7 @@ const renderFeeds = (state) => {
   feedsEl.innerHTML = '';
 
   if (state.feeds.length !== 0) {
-    const feedsContainer = renderContainer('Фиды');
-
-    feedsEl.innerHTML = feedsContainer;
+    feedsEl.innerHTML = renderContainer('Фиды');
 
     const feedsUl = feedsEl.querySelector('ul');
 
@@ -172,23 +168,23 @@ const watch = (form, state, i18nInstance) => onChange(state, (path, value) => {
     modalLink.href = currentPost.link;
   }
 
-  // if (path === 'modalState') {
-  //   const modal = document.querySelector('.modal');
+  if (path === 'modalState') {
+    const modal = document.querySelector('.modal');
 
-  //   if (value === true) {
-  //     modal.removeAttribute('aria-hidden');
-  //     modal.setAttribute('aria-modal', true);
-  //     modal.style.display = 'block';
-  //     modal.classList.add('show');
-  //   }
+    if (value === true) {
+      modal.removeAttribute('aria-hidden');
+      modal.setAttribute('aria-modal', true);
+      modal.style.display = 'block';
+      modal.classList.add('show');
+    }
 
-  //   if (value === false) {
-  //     modal.removeAttribute('aria-modal');
-  //     modal.setAttribute('aria-hidden', true);
-  //     modal.classList.remove('show');
-  //     modal.style.display = 'none';
-  //   }
-  // }
+    if (value === false) {
+      modal.removeAttribute('aria-modal');
+      modal.setAttribute('aria-hidden', true);
+      modal.classList.remove('show');
+      modal.style.display = 'none';
+    }
+  }
 });
 
 export default watch;

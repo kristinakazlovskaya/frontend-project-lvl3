@@ -4,25 +4,11 @@ import _ from 'lodash';
 import axios from 'axios';
 import watch from './view';
 import parseRss from './parser';
+import { isUniqueFeed, isRss, getRssLink } from './utils';
 
 let timer;
 
 const schema = yup.string().url();
-
-const isUniqueFeed = (state, title, desc) => {
-  const existingFeed = state.feeds.find((f) => f.title === title && f.description === desc);
-  return !existingFeed;
-};
-
-const isRss = (dom) => {
-  const rssEl = dom.querySelector('rss');
-
-  if (rssEl === null) {
-    throw new Error('Invalid RSS');
-  }
-};
-
-const getRssLink = (url) => `https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`;
 
 const addNewPosts = (rssString, feed, state, watchedState) => {
   const parsedRss = parseRss(rssString);

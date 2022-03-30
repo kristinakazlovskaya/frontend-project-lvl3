@@ -63,7 +63,7 @@ const processParsedRss = (state, rss, url) => {
   const feedId = _.uniqueId('feed_');
 
   if (isUniqueFeed(state, feedTitleEl.innerHTML, feedDescEl.innerHTML)) {
-    state.feeds.unshift({
+    state.feeds.push({
       title: feedTitleEl.innerHTML,
       description: feedDescEl.innerHTML,
       id: feedId,
@@ -80,7 +80,7 @@ const processParsedRss = (state, rss, url) => {
     const postDescEl = item.querySelector('description');
     const postLinkEl = item.querySelector('link');
 
-    state.posts.unshift({
+    state.posts.push({
       title: postTitleEl.innerHTML,
       description: postDescEl.innerHTML,
       link: postLinkEl.innerHTML,

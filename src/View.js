@@ -1,6 +1,6 @@
 import onChange from 'on-change';
 
-const renderSectionHtml = (heading) => {
+const renderContainer = (heading) => {
   const sectionHtml = `<div class="card border-0">
       <div class="card-body">
         <h2 class="card-title h4">${heading}</h2>
@@ -15,9 +15,9 @@ const renderPosts = (state, i18nInstance) => {
   postsEl.innerHTML = '';
 
   if (state.posts.length !== 0) {
-    const postsHtml = renderSectionHtml('Посты');
+    const postsContainer = renderContainer('Посты');
 
-    postsEl.innerHTML = postsHtml;
+    postsEl.innerHTML = postsContainer;
 
     const postsUl = postsEl.querySelector('ul');
 
@@ -55,9 +55,9 @@ const renderFeeds = (state) => {
   feedsEl.innerHTML = '';
 
   if (state.feeds.length !== 0) {
-    const feedsHtml = renderSectionHtml('Фиды');
+    const feedsContainer = renderContainer('Фиды');
 
-    feedsEl.innerHTML = feedsHtml;
+    feedsEl.innerHTML = feedsContainer;
 
     const feedsUl = feedsEl.querySelector('ul');
 
@@ -170,8 +170,6 @@ const watch = (form, state, i18nInstance) => onChange(state, (path, value) => {
     modalTitle.textContent = currentPost.title;
     modalBody.textContent = currentPost.description;
     modalLink.href = currentPost.link;
-
-    console.log(modalBody.innerHTML);
   }
 
   if (path === 'modalState') {

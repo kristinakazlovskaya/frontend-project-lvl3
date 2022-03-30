@@ -170,6 +170,8 @@ const watch = (form, state, i18nInstance) => onChange(state, (path, value) => {
     modalTitle.textContent = currentPost.title;
     modalBody.textContent = currentPost.description;
     modalLink.href = currentPost.link;
+
+    console.log(modalBody.innerHTML);
   }
 
   if (path === 'modalState') {

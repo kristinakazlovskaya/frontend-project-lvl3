@@ -144,8 +144,8 @@ const app = () => {
         watchedState.openedPosts.push(postId);
       }
 
-      watchedState.currentPost = postId;
       watchedState.modalState = true;
+      watchedState.currentPost = postId;
     }
   });
 

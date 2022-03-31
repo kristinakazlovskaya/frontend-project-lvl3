@@ -2,9 +2,9 @@ import * as yup from 'yup';
 import i18next from 'i18next';
 import _ from 'lodash';
 import axios from 'axios';
-import watch from './view';
-import parseRss from './parser';
-import { isUniqueFeed, isRss, getRssLink } from './utils';
+import watch from './view.js';
+import parseRss from './parser.js';
+import { isUniqueFeed, isRss, getRssLink } from './utils.js';
 
 let timer;
 

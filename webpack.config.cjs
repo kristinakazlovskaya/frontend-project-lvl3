@@ -1,5 +1,7 @@
 const path = require('path');
+// eslint-disable-next-line
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+// eslint-disable-next-line
 const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
 
 const isProduction = process.env.NODE_ENV === 'production';
